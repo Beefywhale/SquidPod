@@ -1,0 +1,32 @@
+{
+    "podcasts": {
+        "http://battlebird.libsyn.com/rss": {
+            "link": "http://battlebird.libsyn.com/rss",
+            "favorite": false
+        },
+        "http://www.podcastone.com/podcast?categoryID2=1225": {
+            "link": "http://www.podcastone.com/podcast?categoryID2=1225",
+            "favorite": true
+        },
+        "http://thefarmeridian.libsyn.com/rss": {
+            "link": "http://thefarmeridian.libsyn.com/rss",
+            "favorite": false
+        },
+        "https://feeds.megaphone.fm/thebrightsessions": {
+            "link": "https://feeds.megaphone.fm/thebrightsessions",
+            "favorite": false
+        },
+        "https://rss.acast.com/marscorp": {
+            "link": "https://rss.acast.com/marscorp",
+            "favorite": false
+        },
+        "https://girlinspace.libsyn.com/rss": {
+            "link": "https://girlinspace.libsyn.com/rss",
+            "favorite": false
+        },
+        "https://phenomenonpod.libsyn.com/rss": {
+            "link": "https://phenomenonpod.libsyn.com/rss",
+            "favorite": false
+        }
+    }
+}

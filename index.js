@@ -1,12 +1,14 @@
 const {
   app,
-  BrowserWindow
+  BrowserWindow,
+  ipcMain
 } = require("electron");
 
 // if reload is a cmd line argument
 if (process.argv.slice(2) == "reload")
   // hot reloading for electron.
   require("electron-reload")(__dirname);
+
 
 let mainWindow;
 
@@ -33,4 +35,18 @@ app.on("ready", () => {
 
 
   mainWindow.loadURL("file://" + __dirname + "/index.html");
+
+  ipcMain.on('get-path', (event, arg) => {
+    event.returnValue = app.getAppPath();
+  })
+
+
+  ipcMain.on('close-window', (event, arg) => {
+    mainWindow.close();
+  })
+
+  ipcMain.on('minimize-window', (event, arg) => {
+    mainWindow.minimize();
+  })
+
 });

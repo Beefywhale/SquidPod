@@ -7,7 +7,12 @@ const {
 const {
   format
 } = require("path");
-const dataPath = "podcasts.json";
+const {
+  ipcRenderer
+} = require('electron')
+
+
+const dataPath = ipcRenderer.sendSync('get-path') + "/assets/podcasts.json";
 let maximized = false;
 let buttonSpam = false;
 let podcastsLoaded = false;
@@ -27,9 +32,6 @@ if (!existsSync(dataPath)) {
 let data = JSON.parse(readFileSync(dataPath, "utf8"));
 
 // window control buttons
-const remote = require("electron").remote;
-let electronWindow = remote.getCurrentWindow();
-
 let shell = require("electron").shell;
 
 // all links open external
@@ -41,11 +43,11 @@ document.addEventListener('click', function (event) {
 })
 
 document.getElementById("minimize").addEventListener("click", () => {
-  electronWindow.minimize();
+  ipcRenderer.send('minimize-window');
 });
 
 document.getElementById("close").addEventListener("click", () => {
-  electronWindow.close();
+  ipcRenderer.send('close-window');
 });
 
 function formatTime(rawSeconds) {
@@ -180,13 +182,15 @@ function displayPodcast(podcastData, jsonData, podcastURL) {
     split.appendChild(image);
 
     podcast.onmouseover = () => {
-      podcast.style.backgroundColor = "#212121";
+      podcast.style.backgroundColor = "var(--highlight-color)";
       image.style.borderRadius = "30%";
+      podcast.style.borderBottomColor = "var(--accent-color1-variant)";
     };
 
     podcast.onmouseout = () => {
-      podcast.style.backgroundColor = "#1b1b1b";
+      podcast.style.backgroundColor = "var(--main-color)";
       image.style.borderRadius = "0";
+      podcast.style.borderBottomColor = "var(--accent-color3)";
     };
 
     let afterDiv = document.createElement("div");

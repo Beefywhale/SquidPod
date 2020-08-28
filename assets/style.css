@@ -173,11 +173,13 @@ body {
   flex-direction: column;
   border: 2px solid transparent;
   transition: background-color 0.4s ease;
-  border-bottom-color: var(--accent-color1-variant2);
+  transition: border-bottom-color 0.4s ease;
+  border-bottom-color: var(--accent-color3);
 }
 
 .podcast.podcast2 {
   height: auto !important;
+  border-bottom-color: var(--accent-color1-variant);
 }
 
 .split {
@@ -484,6 +486,7 @@ body {
 
 .episode:hover {
   background-color: var(--accent-color3);
+  border-color: var(--accent-color1-variant);
 }
 
 .episode-name {
