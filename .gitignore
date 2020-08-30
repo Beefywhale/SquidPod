@@ -5,3 +5,5 @@ icon.ico
 node_modules/*
 
 dist/*
+
+assets/podcast.json
