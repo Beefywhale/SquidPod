@@ -6,4 +6,4 @@ node_modules/*
 
 dist/*
 
-assets/podcast.json
+assets/podcasts.json
