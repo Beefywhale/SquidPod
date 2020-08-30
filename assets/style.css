@@ -10,7 +10,7 @@
   --accent-color2-variant: #e58987;
   --accent-color3: #2e2e2e;
   --accent-color4: #f06292;
-  --font1: #d2d2d2;
+  --font1: #BDBDBD;
 }
 
 a {
@@ -54,7 +54,6 @@ body {
   background-color: transparent;
   text-align: center !important;
   vertical-align: baseline !important;
-  line-height: 32px !important;
   color: white;
   transition: 0.8s color ease, 0.3s font-size ease;
 }
@@ -279,10 +278,11 @@ body {
 .podcast-title2 {
   white-space: pre-wrap;
   font-size: 34px;
-  color: var(--font1);
   font-weight: bold;
   -webkit-user-select: none;
   transition: 0.8s ease all;
+  color: white;
+
 }
 
 .podcast-title2:hover {
@@ -295,7 +295,7 @@ body {
   font-weight: 100;
   white-space: pre-wrap;
   margin-left: 12px;
-  color: white;
+  color: var(--font1);
   -webkit-user-select: none;
 }
 
@@ -554,7 +554,7 @@ body {
   position: absolute;
   left: 50%;
   margin-left: -200px;
-  top: 30%;
+  top: 20%;
   margin-top: -100px;
   width: 400px;
   height: auto;
@@ -565,6 +565,7 @@ body {
   transition: opacity ease 0.5s, visibility ease 1s;
   visibility: hidden;
   opacity: 0;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.6);
 }
 
 @keyframes fade {
@@ -581,10 +582,10 @@ body {
   font-family: "Oswald", sans-serif;
   background-color: var(--main-color);
   border: 2px solid transparent;
-  border-radius: 50px;
+  border-radius: 10px;
   color: white;
   font-size: 22px;
-  padding: 4px;
+  padding: 8px;
   width: 80%;
   margin-left: 22px;
 }
@@ -596,14 +597,19 @@ body {
 .add-text {
   font-family: "Oswald", sans-serif;
   color: white;
-  margin-bottom: 24px;
+  margin: 12px 0 0 0;
+}
+
+.add-text2 {
+  font-family: "Oswald", sans-serif;
+  color: var(--font1);
+  margin: 0 0 24px 0;
 }
 
 .add-close {
   position: absolute;
-  top: 0px;
+  top: 8px;
   right: 12px;
-  margin-top: 3px;
   width: 20px;
   height: 20px;
   text-align: center;
@@ -629,14 +635,19 @@ body {
   font-size: 26px;
 }
 
+.input-holder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .add-finish {
-  position: absolute;
-  bottom: 20px;
-  right: 12px;
+  margin-left: 12px;
   width: 20px;
   height: 20px;
   text-align: center;
-  border: 1px solid white;
+  background-color: var(--main-color);
+  padding: 6px 8px 6px 6px;
   transition: 0.8s border-color ease;
 }
 
