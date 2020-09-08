@@ -7,7 +7,10 @@ SquidPod is an easy to use podcast manager for the modern podcast junkie. Writte
 
 ![Screenshot2](screenshots/screenshot2.png)
 
+## Running
+
+make sure a version of `electron` is installed, then run  `electron .` in the top most directory.
+
 ## How to use
 
-Download the executable from [here](), install, and add your podcasts. No setup needed.
-
+Download the windows executable from [here](), install, and add your podcasts.z
