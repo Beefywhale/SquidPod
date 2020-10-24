@@ -14,7 +14,8 @@
   <h1 class="add-text">Add a Podcast by RSS link</h1>
   <p class="add-text2">example: http://www.example.com/podcast</p>
   <div class="input-holder">
-    <input class="input-link" type="text" placeholder="Podcast Link" onkeydown="addPlayEvent(event)" />
+    <input class="input-link" type="text" placeholder="Podcast Link"
+      onkeydown="if(event.key == 'Enter') {addLinkFromPlaylist();}" />
     <div class="add-finish" onclick="addLinkFromPlaylist();">
       <i class="fas fa-check"></i>
     </div>
@@ -40,7 +41,7 @@
       <div class="nav-button" id="subs-button" onclick="favorites();">
         <i class="fas fa-heart"></i>
       </div>
-      <div class="nav-button" id="add-button" onclick="addPlaylist();">
+      <div class="nav-button" id="add-button" onclick="addNew();">
         <i class="fas fa-plus"></i>
       </div>
       <div class="nav-button" id="user-button" onclick="">
@@ -54,7 +55,7 @@
           <div id="loader"></div>
           <div id="no-found">
             <h1>No podcasts found.</h1>
-            <div class="nav-button" id="add-button" onclick="addPlaylist();">
+            <div class="nav-button" id="add-button" onclick="addNew();">
               <i class="fas fa-plus"></i>
             </div>
           </div>

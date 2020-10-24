@@ -4,85 +4,50 @@ const {
   readFileSync,
   writeFileSync
 } = require("fs");
+
 const {
-  format
-} = require("path");
-const {
-  ipcRenderer
+  ipcRenderer,
+  shell
 } = require('electron')
 
 
-const dataPath = ipcRenderer.sendSync('get-path') + "/assets/podcasts.json";
-let maximized = false;
+let data;
 let buttonSpam = false;
 let podcastsLoaded = false;
-
-const WARNING = "warn";
-const ERROR = "error";
-
-let backArrow = [];
 let notificationsLocal = [];
 let notificationCurrent;
 
+const WARNING = "warn";
+const ERROR = "error";
+const podcastPath = ipcRenderer.sendSync('get-path') + "/assets/podcasts.json";
+
+
 // check if the 'database' has been created yet
-if (!existsSync(dataPath)) {
-  appendFileSync(dataPath, '{\n"podcasts":\n{\n},\n"playlists":\n {\n}\n}');
+if (!existsSync(podcastPath)) {
+  // create new 'database' file if none exists
+  appendFileSync(podcastPath, '{\n"podcasts":\n{\n},\n"playlists":\n {\n}\n}');
 }
 
-let data = JSON.parse(readFileSync(dataPath, "utf8"));
+// load JSON data into varaible from podcasts.json
+data = JSON.parse(readFileSync(podcastPath, "utf8"));
 
-// window control buttons
-let shell = require("electron").shell;
-
-// all links open external
-document.addEventListener('click', function (event) {
-  if (event.target.tagName === 'A' && event.target.href.startsWith('http')) {
-    event.preventDefault()
-    shell.openExternal(event.target.href)
-  }
-})
-
-document.getElementById("minimize").addEventListener("click", () => {
-  ipcRenderer.send('minimize-window');
-});
-
-document.getElementById("close").addEventListener("click", () => {
-  ipcRenderer.send('close-window');
-});
-
-function formatTime(rawSeconds) {
+// convert raw seconds to an H:M:S format 
+function secondsToHMS(seconds) {
   var measuredTime = new Date(null);
-  measuredTime.setSeconds(rawSeconds);
+  measuredTime.setSeconds(seconds);
   return measuredTime.toISOString().substr(11, 8);
 }
 
-function testLink(url, isXML) {
-  return new Promise(function (resolve, reject) {
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onload = () => {
-      if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-        resolve();
-      } else {
-        reject(new Error("Failed to get rss info."));
-      }
-    };
-    xmlHttp.onerror = () => {
-      reject(new Error("Invalid link " + url));
-    };
-    xmlHttp.open("GET", url);
-    xmlHttp.send(null);
-  });
-}
-
-function get(url, isXML) {
+// get XML data from an RSS link
+function getXML(url, isXML) {
   return new Promise(function (resolve, reject) {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onload = () => {
       if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
         resolve(isXML ? xmlHttp.responseXML : xmlHttp.responseText);
       } else {
-        notify("Failed getting rss info on: " + url);
-        reject(new Error("Failed to get rss info."));
+        notify("Failed getting RSS info on: " + url);
+        reject(new Error("Failed to get RSS info."));
         removePodcast(url);
       }
     };
@@ -96,39 +61,25 @@ function get(url, isXML) {
   });
 }
 
-function getPodcasts() {
-  data = JSON.parse(readFileSync(dataPath, "utf8"));
-  return data;
-}
-
+// add a podcast to the JSON data
 function addPodcast(link) {
-  if (link.startsWith("https://") || link.startsWith("http://")) {
-    if (!data.podcasts.hasOwnProperty(link)) {
-      data.podcasts[link] = {
-        link: link,
-        favorite: false
-      };
-      writeFileSync(dataPath, JSON.stringify(data, null, 4));
-      notify("Added new Podcast!");
-      home();
-    }
+  if (!data.podcasts.hasOwnProperty(link)) {
+    data.podcasts[link] = {
+      link: link,
+      favorite: false
+    };
+    writeFileSync(podcastPath, JSON.stringify(data, null, 4));
+    notify("Added new Podcast! " + link);
+    home();
   } else {
-    link = "http://" + link;
-    testPromise = testLink(link, true);
-    testPromise.catch(error => {
-      notify("Failed to verify as valid link: " + link);
-    });
-
-    testPromise.then(() => {
-      addPodcast(link);
-    });
+    notify("Podcast already added.", WARNING)
   }
 }
 
 function removePodcast(link) {
   if (data.podcasts.hasOwnProperty(link)) {
     delete data.podcasts[link];
-    writeFileSync(dataPath, JSON.stringify(data, null, 4));
+    writeFileSync(podcastPath, JSON.stringify(data, null, 4));
     home();
     notify("Removed invalid link: " + link, WARNING);
   }
@@ -137,18 +88,25 @@ function removePodcast(link) {
 function addFavorite(link) {
   if (data.podcasts.hasOwnProperty(link)) {
     data.podcasts[link].favorite = true;
-    writeFileSync(dataPath, JSON.stringify(data, null, 4));
+    writeFileSync(podcastPath, JSON.stringify(data, null, 4));
   }
 }
 
 function removeFavorite(link) {
   if (data.podcasts.hasOwnProperty(link)) {
     data.podcasts[link].favorite = false;
-    writeFileSync(dataPath, JSON.stringify(data, null, 4));
+    writeFileSync(podcastPath, JSON.stringify(data, null, 4));
   }
 }
 
-function getPodcastData(podcastData) {}
+function clearPodcasts() {
+  let podcasts = document.getElementById("podcasts");
+  // remove all inner html from the podcasts element, effectively removing all children elements.
+  podcasts.className = "podcasts";
+  podcasts.innerHTML =
+    "<div id='loader'></div> <div id ='no-found'> <h1>No podcasts found.</h1> </div>";
+}
+
 
 function displayPodcast(podcastData, jsonData, podcastURL) {
   try {
@@ -173,7 +131,7 @@ function displayPodcast(podcastData, jsonData, podcastURL) {
     split.className = "split";
     podcast.appendChild(split);
     split.onclick = () => {
-      displayPodcastDetails(podcastURL);
+      displayFull(podcastURL);
     };
 
     let image = document.createElement("img");
@@ -252,76 +210,23 @@ function displayPodcast(podcastData, jsonData, podcastURL) {
     }
   } catch (exception) {
     notify("Failed to load Podcast with link: " + podcastURL, ERROR);
-    let podcasts = document.getElementById("podcasts");
-
-    let podcast = document.createElement("div");
-    podcast.className = "podcast";
-    podcasts.appendChild(podcast);
-
-    let split = document.createElement("div");
-    split.className = "split";
-    podcast.appendChild(split);
-    split.onclick = () => {
-      displayPodcastDetails(podcastURL);
-    };
-
-    podcast.onmouseover = () => {
-      podcast.style.backgroundColor = "#212121";
-    };
-
-    podcast.onmouseout = () => {
-      podcast.style.backgroundColor = "#1b1b1b";
-    };
-
-    let afterDiv = document.createElement("div");
-    afterDiv.className = "podcast-after";
-    split.appendChild(afterDiv);
-
-    let name = document.createElement("div");
-    name.className = "podcast-title";
-    name.innerHTML = podcastURL;
-    afterDiv.appendChild(name);
-
-    let desc = document.createElement("div");
-    desc.className = "podcast-description";
-    desc.innerHTML =
-      "Error! Couldn't load info on this podcast, make sure the URL is correct!";
-    afterDiv.appendChild(desc);
-
-    let buttons = document.createElement("div");
-    buttons.className = "podcast-buttons";
-    podcast.appendChild(buttons);
-
-    if (podcasts.childNodes.length > 3) {
-      document.getElementById("loader").style.display = "none";
-    }
   }
 }
 
-function clearPodcasts() {
-  let podcasts = document.getElementById("podcasts");
-  // remove all inner html from the podcasts element, effectively removing all chilren elements.
-  podcasts.className = "podcasts";
-  podcasts.innerHTML =
-    "<div id='loader'></div> <div id ='no-found'> <h1>No podcasts found.</h1> </div>";
-}
-
 async function home() {
-  hideAddPlaylist();
   if (!buttonSpam) {
     podcastsLoaded = false;
     buttonSpam = true;
     setTimeout(() => {
       buttonSpam = false;
     }, 800);
-    let data = getPodcasts();
     let keyObj = Object.keys(data.podcasts);
 
     if (keyObj.length > 0) {
       clearPodcasts();
       document.getElementById("no-found").style.display = "none";
       for (const item of keyObj) {
-        await get(data.podcasts[item].link, true).then(podcastData => {
+        await getXML(data.podcasts[item].link, true).then(podcastData => {
           displayPodcast(podcastData, data, data.podcasts[item].link);
         });
       }
@@ -331,21 +236,20 @@ async function home() {
 }
 
 async function favorites() {
-  hideAddPlaylist();
+  hideFloating();
   if (!buttonSpam) {
     podcastsLoaded = false;
     buttonSpam = true;
     setTimeout(() => {
       buttonSpam = false;
     }, 800);
-    let data = getPodcasts();
     let keyObj = Object.keys(data.podcasts);
 
     if (keyObj.length > 0) {
       clearPodcasts();
       document.getElementById("no-found").style.display = "none";
       for (const item of keyObj) {
-        await get(data.podcasts[item].link, true).then(podcastData => {
+        await getXML(data.podcasts[item].link, true).then(podcastData => {
           if (data.podcasts[data.podcasts[item].link].favorite) {
             displayPodcast(podcastData, data, data.podcasts[item].link);
           }
@@ -371,11 +275,11 @@ function settings() {
   }
 }
 
-function displayPodcastDetails(podcastUrl) {
+function displayFull(podcastUrl) {
   if (podcastsLoaded) {
     clearPodcasts();
     document.getElementById("no-found").style.display = "none";
-    get(podcastUrl, true).then(podcastData => {
+    getXML(podcastUrl, true).then(podcastData => {
       let podcasts = document.getElementById("podcasts");
       podcasts.className = "podcasts details";
 
@@ -441,7 +345,7 @@ function displayPodcastDetails(podcastUrl) {
       episodesData.reverse().forEach(ep => {
         let currentEpisodeTitle = ep.getElementsByTagName("title")[0]
           .textContent;
-        let currentEpisodeDesc
+        let currentEpisodeDesc;
         if (ep.getElementsByTagName("itunes:summary")[0] !== undefined) {
           currentEpisodeDesc = ep.getElementsByTagName("itunes:summary")[0].textContent;
         } else if (ep.getElementsByTagName("description")[0] !== undefined) {
@@ -457,7 +361,7 @@ function displayPodcastDetails(podcastUrl) {
           if (parseInt(currentEpisodeTime) < 60) {
             currentEpisodeTime = "0:" + currentEpisodeTime;
           } else {
-            currentEpisodeTime = formatTime(parseInt(currentEpisodeTime));
+            currentEpisodeTime = secondsToHMS(parseInt(currentEpisodeTime));
           }
         }
         if (currentEpisodeTime.startsWith("00:")) {
@@ -493,35 +397,30 @@ function displayPodcastDetails(podcastUrl) {
   }
 }
 
-function addPlayEvent(evnt) {
-  if (evnt.key == "Enter") {
-    addLinkFromPlaylist();
-  }
-}
-
 function addLinkFromPlaylist() {
   let input = document.getElementsByClassName("add-input")[0];
   let inputLink = input.getElementsByTagName("input")[0];
 
   if (inputLink.value !== "" && inputLink.value !== undefined) {
     addPodcast(inputLink.value);
-    hideAddPlaylist();
+    hideFloating();
   } else {
     notify("You need to use a valid RSS link!", "info");
   }
 }
 
-function addPlaylist() {
+function addNew() {
   let input = document.getElementsByClassName("add-input")[0];
   if (input.style.visibility == "hidden") {
     input.style.opacity = "100";
     input.style.visibility = "visible";
   } else {
-    hideAddPlaylist();
+    hideFloating();
   }
 }
 
-function hideAddPlaylist() {
+function hideFloating() {
+  // TODO: Add other floating menus when they're written
   let input = document.getElementsByClassName("add-input")[0];
   input.getElementsByTagName("input")[0].value = "";
   input.style.opacity = "0";
@@ -539,11 +438,11 @@ function notify(msg, typ) {
       message: msg,
       type: typ
     };
-    displayNotifications();
+    displayNotification();
   }
 }
 
-function displayNotifications() {
+function displayNotification() {
   if (notificationCurrent != undefined) {
     let notifications = document.getElementsByClassName("notifications")[0];
 
@@ -578,10 +477,29 @@ function displayNotifications() {
       setTimeout(() => {
         notifications.removeChild(notification);
         notificationCurrent = notificationsLocal.shift();
-        displayNotifications();
+        displayNotification();
       }, 1000);
     }, 3000);
   }
 }
 
+// ELECTRON STUFF
+
+// all links clicked open in default browser
+document.addEventListener('click', function (event) {
+  if (event.target.tagName === 'A' && event.target.href.startsWith('http')) {
+    event.preventDefault()
+    shell.openExternal(event.target.href)
+  }
+})
+
+document.getElementById("minimize").addEventListener("click", () => {
+  ipcRenderer.send('minimize-window');
+});
+
+document.getElementById("close").addEventListener("click", () => {
+  ipcRenderer.send('close-window');
+});
+
+// Load homepage
 home();

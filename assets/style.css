@@ -240,7 +240,7 @@ body {
   height: 128px;
   margin-right: 16px;
   border: 4px solid var(--accent-color3);
-  transition: border-radius 0.8s ease;
+  transition: all 0.8s ease;
 }
 
 .podcast-image2 {
@@ -248,11 +248,12 @@ body {
   height: 256px;
   margin-right: 16px;
   border: 4px solid var(--accent-color3);
-  transition: border-radius 1.4s ease;
+  transition: all 1.4s ease;
 }
 
 .podcast-image2:hover {
   border-radius: 25px;
+  border-color: var(--accent-color1-variant);
 }
 
 .podcast img {
