@@ -6,6 +6,7 @@
   --accent-color1: #7e57c2;
   --accent-color1-variant: #9575cd;
   --accent-color1-variant2: #b39ddb;
+  --accent-color1-variant3: #d1c4e9;
   --accent-color2: #d64541;
   --accent-color2-variant: #e58987;
   --accent-color3: #2e2e2e;
@@ -481,6 +482,8 @@ body {
   transition: 0.4s all ease;
   border-radius: 8px;
   align-items: center;
+  align-content: center;
+  justify-items: space-between;
   justify-content: space-between;
 }
 
@@ -489,13 +492,43 @@ body {
   border-color: var(--accent-color1-variant);
 }
 
+.episode-first {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+  justify-items: center;
+  justify-content: center;
+}
+.episode-second {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-items: center;
+  justify-content: center;
+}
+
 .episode-name {
   -webkit-user-select: none;
+  margin-right: 50px;
+}
+
+.episode-date {
+  margin-right: 30px;
+  font-size: 18px;
+  color: var(--accent-color1-variant3);
 }
 
 .episode-time {
-  font-size: 12px;
+  font-size: 16px;
   color: var(--font1);
+}
+
+.episode-summary {
+  color: var(--font1);
+  font-size: 12px;
+  width: 400px;
 }
 
 .media-player {
@@ -517,7 +550,7 @@ body {
 }
 
 .episode-title-holder {
-  width: 200px;
+  width: 300px;
   overflow: hidden;
 }
 

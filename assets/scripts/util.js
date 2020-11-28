@@ -17,6 +17,8 @@ let podcastsLoaded = false;
 let notificationsLocal = [];
 let notificationCurrent;
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 const WARNING = "warn";
 const ERROR = "error";
 const podcastPath = ipcRenderer.sendSync('get-path') + "/assets/podcasts.json";
@@ -215,6 +217,7 @@ function displayPodcast(podcastData, jsonData, podcastURL) {
 
 async function home() {
   if (!buttonSpam) {
+    hideFloating()
     podcastsLoaded = false;
     buttonSpam = true;
     setTimeout(() => {
@@ -372,6 +375,12 @@ function displayFull(podcastUrl) {
           currentEpisodeDesc = "?";
         }
 
+        let currentEpisodeDate = ep.getElementsByTagName("pubDate")[0].textContent;
+        if (!currentEpisodeDate) {
+          currentEpisodeDate = "?"
+        }
+        let currentDate = new Date(Date.parse(currentEpisodeDate));
+        let dateString = `${currentDate.getDate()} ${MONTHS[currentDate.getMonth()]}, ${currentDate.getFullYear()}`;
 
         let currentEpisodeTime = ep.getElementsByTagName("itunes:duration")[0].textContent;
         if (!currentEpisodeTime.includes(":")) {
@@ -399,15 +408,34 @@ function displayFull(podcastUrl) {
         episode.setAttribute("mp3", currentEpisodeURL);
         episodes.appendChild(episode);
 
+        let episodeFirst = document.createElement("div");
+        episodeFirst.className = "episode-first";
+        episode.appendChild(episodeFirst);
+        
         let episodeName = document.createElement("div");
         episodeName.className = "episode-name";
         episodeName.innerHTML = currentEpisodeTitle;
-        episode.appendChild(episodeName);
+        episodeFirst.appendChild(episodeName);
+
+        let episodeSummary = document.createElement("div");
+        episodeSummary.className = "episode-summary";
+        episodeSummary.innerHTML = currentEpisodeDesc;
+        episodeFirst.appendChild(episodeSummary);
+
+
+        let episodeSecond = document.createElement("div");
+        episodeSecond.className = "episode-second";
+        episode.appendChild(episodeSecond);
+
+        let episodeDate = document.createElement("div");
+        episodeDate.className = "episode-date";
+        episodeDate.innerHTML = dateString;
+        episodeSecond.appendChild(episodeDate);
 
         let episodeTime = document.createElement("div");
         episodeTime.className = "episode-time";
         episodeTime.innerHTML = currentEpisodeTime;
-        episode.appendChild(episodeTime);
+        episodeSecond.appendChild(episodeTime);
       });
 
       if (podcasts.childNodes.length > 3) {
