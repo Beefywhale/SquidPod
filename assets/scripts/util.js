@@ -275,6 +275,23 @@ function settings() {
   }
 }
 
+function setPlayer(name, mp3, image, episode) { 
+  let playerName = document.getElementById("player-title");
+  let playerImage = document.getElementById("player-image");
+  let playerHidden = document.getElementById("player-title-hidden")
+
+  playerHidden.onmouseover = () => {
+    playerName.style = `margin-left: -${name.length/2}rem;`
+  }
+  playerHidden.onmouseout = () => {
+        playerName.style = `margin-left: 0px;`
+  }
+
+  playerName.innerHTML = name;
+  playerImage.src = image.src;
+
+}
+
 function displayFull(podcastUrl) {
   if (podcastsLoaded) {
     clearPodcasts();
@@ -376,6 +393,9 @@ function displayFull(podcastUrl) {
 
         let episode = document.createElement("div");
         episode.className = "episode";
+        episode.onclick = () => {
+          setPlayer(currentEpisodeTitle, currentEpisodeURL, image, episode)
+        }
         episode.setAttribute("mp3", currentEpisodeURL);
         episodes.appendChild(episode);
 

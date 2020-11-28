@@ -1,20 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Oswald&display=swap");
 
 :root {
   --main-color: #1b1b1b;
   --highlight-color: #212121;
-  --accent-color1: #7E57C2;
-  --accent-color1-variant: #9575CD;
-  --accent-color1-variant2: #B39DDB;
+  --accent-color1: #7e57c2;
+  --accent-color1-variant: #9575cd;
+  --accent-color1-variant2: #b39ddb;
   --accent-color2: #d64541;
   --accent-color2-variant: #e58987;
   --accent-color3: #2e2e2e;
   --accent-color4: #f06292;
-  --font1: #BDBDBD;
+  --font1: #bdbdbd;
 }
 
 a {
-  color: var(--accent-color1-variant)
+  color: var(--accent-color1-variant);
 }
 
 body {
@@ -283,7 +283,6 @@ body {
   -webkit-user-select: none;
   transition: 0.8s ease all;
   color: white;
-
 }
 
 .podcast-title2:hover {
@@ -503,40 +502,39 @@ body {
   display: flex;
   flex-direction: row;
   align-content: center;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   border: 2px solid var(--accent-color3);
   border-radius: 16px;
   width: 90%;
-  min-height: 70px;
+  height: 70px;
   margin: 15px;
 }
 
-.media-button {
-  margin-top: 3px;
-  background-color: var(--accent-color3);
-  width: 50px;
-  height: 50px;
-  font-size: 48px;
-  text-align: center;
-  border: 4px solid transparent;
-  border-radius: 50%;
+.first-half {
+  display: flex;
+  flex-direction: row;
+}
+
+.episode-title-holder {
+  width: 200px;
+  overflow: hidden;
+}
+
+.episode-title {
+  padding: 20px;
   color: white;
-  transition: 0.8s border-color ease;
+  font-size: 20px;
+  font-family: "Oswald", sans-serif;
+  white-space: nowrap;
+  transition: all 4s ease;
 }
 
-.media-button i {
-  text-align: center !important;
-  vertical-align: baseline !important;
-  line-height: 52px !important;
-  -webkit-text-stroke: 3px black;
-  color: inherit;
-  font-size: 40px;
-  margin-left: 6px;
-  transition: 1s color ease, 0.8s font-size ease;
-}
-
-.media-button:hover {
-  color: var(--accent-color1);
+.pod-image img {
+  border: 2px solid var(--accent-color1-variant);
+  border-radius: 8px;
+  width: 75px;
+  height: 75px;
 }
 
 @keyframes fadeout {
