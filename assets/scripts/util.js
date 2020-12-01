@@ -2,27 +2,38 @@ const {
   existsSync,
   appendFileSync,
   readFileSync,
-  writeFileSync
+  writeFileSync,
 } = require("fs");
 
-const {
-  ipcRenderer,
-  shell
-} = require('electron')
-
+const { ipcRenderer, shell } = require("electron");
 
 let data;
 let buttonSpam = false;
 let podcastsLoaded = false;
 let notificationsLocal = [];
 let notificationCurrent;
+let currentEpisode;
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const audioPlayer = document.getElementById("audio-player");
+
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 const WARNING = "warn";
 const ERROR = "error";
-const podcastPath = ipcRenderer.sendSync('get-path') + "/assets/podcasts.json";
-
+const podcastPath = ipcRenderer.sendSync("get-path") + "/assets/podcasts.json";
 
 // check if the 'database' has been created yet
 if (!existsSync(podcastPath)) {
@@ -33,7 +44,7 @@ if (!existsSync(podcastPath)) {
 // load JSON data into varaible from podcasts.json
 data = JSON.parse(readFileSync(podcastPath, "utf8"));
 
-// convert raw seconds to an H:M:S format 
+// convert raw seconds to an H:M:S format
 function secondsToHMS(seconds) {
   var measuredTime = new Date(null);
   measuredTime.setSeconds(seconds);
@@ -68,13 +79,13 @@ function addPodcast(link) {
   if (!data.podcasts.hasOwnProperty(link)) {
     data.podcasts[link] = {
       link: link,
-      favorite: false
+      favorite: false,
     };
     writeFileSync(podcastPath, JSON.stringify(data, null, 4));
     notify("Added new Podcast! " + link);
     home();
   } else {
-    notify("Podcast already added.", WARNING)
+    notify("Podcast already added.", WARNING);
   }
 }
 
@@ -109,7 +120,6 @@ function clearPodcasts() {
     "<div id='loader'></div> <div id ='no-found'> <h1>No podcasts found.</h1> </div>";
 }
 
-
 function displayPodcast(podcastData, jsonData, podcastURL) {
   try {
     let podcasts = document.getElementById("podcasts");
@@ -122,7 +132,8 @@ function displayPodcast(podcastData, jsonData, podcastURL) {
     let url = podcastData
       .getElementsByTagName("image")[0]
       .getElementsByTagName("url")[0].textContent;
-    let description = podcastData.getElementsByTagName("itunes:summary")[0]
+    let description = podcastData
+      .getElementsByTagName("itunes:summary")[0]
       .textContent.replace(/<.+?>/g, "");
 
     let podcast = document.createElement("div");
@@ -206,7 +217,6 @@ function displayPodcast(podcastData, jsonData, podcastURL) {
     buttons.appendChild(faveHolder);
     faveHolder.appendChild(fave);
 
-
     if (podcasts.childNodes.length > 3) {
       document.getElementById("loader").style.display = "none";
     }
@@ -217,7 +227,7 @@ function displayPodcast(podcastData, jsonData, podcastURL) {
 
 async function home() {
   if (!buttonSpam) {
-    hideFloating()
+    hideFloating();
     podcastsLoaded = false;
     buttonSpam = true;
     setTimeout(() => {
@@ -229,7 +239,7 @@ async function home() {
       clearPodcasts();
       document.getElementById("no-found").style.display = "none";
       for (const item of keyObj) {
-        await getXML(data.podcasts[item].link, true).then(podcastData => {
+        await getXML(data.podcasts[item].link, true).then((podcastData) => {
           displayPodcast(podcastData, data, data.podcasts[item].link);
         });
       }
@@ -252,7 +262,7 @@ async function favorites() {
       clearPodcasts();
       document.getElementById("no-found").style.display = "none";
       for (const item of keyObj) {
-        await getXML(data.podcasts[item].link, true).then(podcastData => {
+        await getXML(data.podcasts[item].link, true).then((podcastData) => {
           if (data.podcasts[data.podcasts[item].link].favorite) {
             displayPodcast(podcastData, data, data.podcasts[item].link);
           }
@@ -278,28 +288,54 @@ function settings() {
   }
 }
 
-function setPlayer(name, mp3, image, episode) { 
+function seek(forward) {}
+
+function playPause() {
+  let mediaButton = document.getElementById("media-play-button");
+  if (audioPlayer.paused) {
+    audioPlayer.play();
+    mediaButton.innerHTML = '<i class="fas fa-pause"></i>';
+  } else {
+    audioPlayer.pause();
+    mediaButton.innerHTML = '<i class="fas fa-play"></i>';
+  }
+}
+
+function setPlayer(name, mp3, image, episode) {
   let playerName = document.getElementById("player-title");
   let playerImage = document.getElementById("player-image");
-  let playerHidden = document.getElementById("player-title-hidden")
+  let playerHidden = document.getElementById("player-title-hidden");
+
+  if (currentEpisode) {
+    currentEpisode.className = "episode";
+  }
+  currentEpisode = episode;
+  currentEpisode.className = "episode selected";
+
+  audioPlayer.innerHTML = "";
+  let newAudioSrc = document.createElement("source");
+  newAudioSrc.src = currentEpisode.getAttribute("mp3");
+  audioPlayer.appendChild(newAudioSrc);
+  audioPlayer.load();
+
+  document.getElementById("episode-player").style = "opacity: 100;";
 
   playerHidden.onmouseover = () => {
-    playerName.style = `margin-left: -${name.length/2}rem;`
-  }
+    playerName.style = `margin-left: -${name.length / 2}rem;`;
+  };
   playerHidden.onmouseout = () => {
-        playerName.style = `margin-left: 0px;`
-  }
+    playerName.style = `margin-left: 0px;`;
+  };
 
   playerName.innerHTML = name;
   playerImage.src = image.src;
-
 }
 
 function displayFull(podcastUrl) {
   if (podcastsLoaded) {
     clearPodcasts();
     document.getElementById("no-found").style.display = "none";
-    getXML(podcastUrl, true).then(podcastData => {
+    getXML(podcastUrl, true).then((podcastData) => {
       let podcasts = document.getElementById("podcasts");
       podcasts.className = "podcasts details";
 
@@ -311,7 +347,8 @@ function displayFull(podcastUrl) {
       let url = podcastData
         .getElementsByTagName("image")[0]
         .getElementsByTagName("url")[0].textContent;
-      let description = podcastData.getElementsByTagName("itunes:summary")[0]
+      let description = podcastData
+        .getElementsByTagName("itunes:summary")[0]
         .textContent.replace(/<.+?>/g, "");
 
       let episodesData = Array.prototype.slice.call(
@@ -362,27 +399,32 @@ function displayFull(podcastUrl) {
       episodes.className = "episodes";
       podcasts.appendChild(episodes);
 
-      episodesData.reverse().forEach(ep => {
+      episodesData.reverse().forEach((ep) => {
         let currentEpisodeTitle = ep.getElementsByTagName("title")[0]
           .textContent;
         let currentEpisodeDesc;
         if (ep.getElementsByTagName("itunes:summary")[0] !== undefined) {
-          currentEpisodeDesc = ep.getElementsByTagName("itunes:summary")[0].textContent;
+          currentEpisodeDesc = ep.getElementsByTagName("itunes:summary")[0]
+            .textContent;
         } else if (ep.getElementsByTagName("description")[0] !== undefined) {
-          currentEpisodeDesc = ep.getElementsByTagName("description")[0].textContent;
-
+          currentEpisodeDesc = ep.getElementsByTagName("description")[0]
+            .textContent;
         } else {
           currentEpisodeDesc = "?";
         }
 
-        let currentEpisodeDate = ep.getElementsByTagName("pubDate")[0].textContent;
+        let currentEpisodeDate = ep.getElementsByTagName("pubDate")[0]
+          .textContent;
         if (!currentEpisodeDate) {
-          currentEpisodeDate = "?"
+          currentEpisodeDate = "?";
         }
         let currentDate = new Date(Date.parse(currentEpisodeDate));
-        let dateString = `${currentDate.getDate()} ${MONTHS[currentDate.getMonth()]}, ${currentDate.getFullYear()}`;
+        let dateString = `${currentDate.getDate()} ${
+          MONTHS[currentDate.getMonth()]
+        }, ${currentDate.getFullYear()}`;
 
-        let currentEpisodeTime = ep.getElementsByTagName("itunes:duration")[0].textContent;
+        let currentEpisodeTime = ep.getElementsByTagName("itunes:duration")[0]
+          .textContent;
         if (!currentEpisodeTime.includes(":")) {
           if (parseInt(currentEpisodeTime) < 60) {
             currentEpisodeTime = "0:" + currentEpisodeTime;
@@ -391,27 +433,32 @@ function displayFull(podcastUrl) {
           }
         }
         if (currentEpisodeTime.startsWith("00:")) {
-          currentEpisodeTime = currentEpisodeTime.substr(3, currentEpisodeTime.length);
+          currentEpisodeTime = currentEpisodeTime.substr(
+            3,
+            currentEpisodeTime.length
+          );
         }
 
         let currentEpisodeURL = ep
           .getElementsByTagName("enclosure")[0]
           .getAttribute("url");
         let publishDate = ep.getElementsByTagName("pubDate")[0].textContent;
-        let audioLink = ep.getElementsByTagName("enclosure")[0].getAttribute("url").textContent;
+        let audioLink = ep
+          .getElementsByTagName("enclosure")[0]
+          .getAttribute("url").textContent;
 
         let episode = document.createElement("div");
         episode.className = "episode";
         episode.onclick = () => {
-          setPlayer(currentEpisodeTitle, currentEpisodeURL, image, episode)
-        }
+          setPlayer(currentEpisodeTitle, currentEpisodeURL, image, episode);
+        };
         episode.setAttribute("mp3", currentEpisodeURL);
         episodes.appendChild(episode);
 
         let episodeFirst = document.createElement("div");
         episodeFirst.className = "episode-first";
         episode.appendChild(episodeFirst);
-        
+
         let episodeName = document.createElement("div");
         episodeName.className = "episode-name";
         episodeName.innerHTML = currentEpisodeTitle;
@@ -421,7 +468,6 @@ function displayFull(podcastUrl) {
         episodeSummary.className = "episode-summary";
         episodeSummary.innerHTML = currentEpisodeDesc;
         episodeFirst.appendChild(episodeSummary);
-
 
         let episodeSecond = document.createElement("div");
         episodeSecond.className = "episode-second";
@@ -479,12 +525,12 @@ function notify(msg, typ) {
   if (notificationsLocal.length > 0 || notificationCurrent != undefined) {
     notificationsLocal.push({
       message: msg,
-      type: typ
+      type: typ,
     });
   } else {
     notificationCurrent = {
       message: msg,
-      type: typ
+      type: typ,
     };
     displayNotification();
   }
@@ -534,19 +580,19 @@ function displayNotification() {
 // ELECTRON STUFF
 
 // all links clicked open in default browser
-document.addEventListener('click', function (event) {
-  if (event.target.tagName === 'A' && event.target.href.startsWith('http')) {
-    event.preventDefault()
-    shell.openExternal(event.target.href)
+document.addEventListener("click", function (event) {
+  if (event.target.tagName === "A" && event.target.href.startsWith("http")) {
+    event.preventDefault();
+    shell.openExternal(event.target.href);
   }
-})
+});
 
 document.getElementById("minimize").addEventListener("click", () => {
-  ipcRenderer.send('minimize-window');
+  ipcRenderer.send("minimize-window");
 });
 
 document.getElementById("close").addEventListener("click", () => {
-  ipcRenderer.send('close-window');
+  ipcRenderer.send("close-window");
 });
 
 // Load homepage

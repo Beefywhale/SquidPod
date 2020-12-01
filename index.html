@@ -1,79 +1,97 @@
 <html>
+  <head>
+    <link rel="stylesheet" href="assets/style.css" />
+    <link rel="stylesheet" href="assets/fontawesome/css/all.css" />
+  </head>
 
-<head>
-  <link rel="stylesheet" href="assets/style.css" />
-  <link rel="stylesheet" href="assets/fontawesome/css/all.css" />
-</head>
+  <div class="notifications"></div>
 
-<div class="notifications"></div>
-
-<div class="add-input" style="opacity: 0;">
-  <div class="add-close" onclick="hideFloating()">
-    <i class="fas fa-times"></i>
-  </div>
-  <h1 class="add-text">Add a Podcast by RSS link</h1>
-  <p class="add-text2">example: http://www.example.com/podcast</p>
-  <div class="input-holder">
-    <input class="input-link" type="text" placeholder="Podcast Link"
-      onkeydown="if(event.key == 'Enter') {addLinkFromPlaylist();}" />
-    <div class="add-finish" onclick="addLinkFromPlaylist();">
-      <i class="fas fa-check"></i>
+  <div class="add-input" style="opacity: 0">
+    <div class="add-close" onclick="hideFloating()">
+      <i class="fas fa-times"></i>
+    </div>
+    <h1 class="add-text">Add a Podcast by RSS link</h1>
+    <p class="add-text2">example: http://www.example.com/podcast</p>
+    <div class="input-holder">
+      <input
+        class="input-link"
+        type="text"
+        placeholder="Podcast Link"
+        onkeydown="if(event.key == 'Enter') {addLinkFromPlaylist();}"
+      />
+      <div class="add-finish" onclick="addLinkFromPlaylist();">
+        <i class="fas fa-check"></i>
+      </div>
     </div>
   </div>
-</div>
 
-<div id="title-bar" style="-webkit-app-region: drag">
-  <div id="logo">
-    <img src="assets/logo.png" width=87.5px height=43.5px>
-  </div>
-  <div class="title-buts">
-    <i id="close" class="fas fa-times"></i>
-    <i id="minimize" class="fas fa-window-minimize"></i>
-  </div>
-</div>
-
-<body>
-  <div id="container" class="container">
-    <div class="nav">
-      <div class="nav-button" id="home-button" onclick="home();">
-        <i class="fas fa-home"></i>
-      </div>
-      <div class="nav-button" id="subs-button" onclick="favorites();">
-        <i class="fas fa-heart"></i>
-      </div>
-      <div class="nav-button" id="add-button" onclick="addNew();">
-        <i class="fas fa-plus"></i>
-      </div>
-      <div class="nav-button" id="user-button" onclick="">
-        <i class="fas fa-cog"></i>
-      </div>
-
+  <div id="title-bar" style="-webkit-app-region: drag">
+    <div id="logo">
+      <img src="assets/logo.png" width="87.5px" height="43.5px" />
     </div>
-    <div class="holder">
-      <div class="podcast-holder">
-        <div id="podcasts" class="podcasts">
-          <div id="loader"></div>
-          <div id="no-found">
-            <h1>No podcasts found.</h1>
-            <div class="nav-button" id="add-button" onclick="addNew();">
-              <i class="fas fa-plus"></i>
+    <div class="title-buts">
+      <i id="close" class="fas fa-times"></i>
+      <i id="minimize" class="fas fa-window-minimize"></i>
+    </div>
+  </div>
+
+  <body>
+    <div id="container" class="container">
+      <div class="nav">
+        <div class="nav-button" id="home-button" onclick="home();">
+          <i class="fas fa-home"></i>
+        </div>
+        <div class="nav-button" id="subs-button" onclick="favorites();">
+          <i class="fas fa-heart"></i>
+        </div>
+        <div class="nav-button" id="add-button" onclick="addNew();">
+          <i class="fas fa-plus"></i>
+        </div>
+        <div class="nav-button" id="user-button" onclick="">
+          <i class="fas fa-cog"></i>
+        </div>
+      </div>
+      <div class="holder">
+        <div class="podcast-holder">
+          <div id="podcasts" class="podcasts">
+            <div id="loader"></div>
+            <div id="no-found">
+              <h1>No podcasts found.</h1>
+              <div class="nav-button" id="add-button" onclick="addNew();">
+                <i class="fas fa-plus"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="episode-player" class="media-player">
+          <div class="first-half">
+            <div class="pod-image">
+              <img id="player-image" />
+            </div>
+            <div id="player-title-hidden" class="episode-title-holder">
+              <div id="player-title" class="episode-title"></div>
+            </div>
+          </div>
+          <div class="media-controls">
+            <audio id="audio-player"></audio>
+            <div id="media-backward-button" class="media-play">
+              <i class="fas fa-fast-backward"></i>
+            </div>
+            <div
+              id="media-play-button"
+              class="media-play"
+              onclick="playPause();"
+            >
+              <i class="fas fa-play"></i>
+              <div></div>
+            </div>
+            <div id="media-forward-button" class="media-play">
+              <i class="fas fa-fast-forward"></i>
             </div>
           </div>
         </div>
       </div>
-      <div class="media-player">
-        <div class="first-half">
-          <div class="pod-image">
-            <img id="player-image">
-          </div>
-          <div id="player-title-hidden" class="episode-title-holder">
-            <div id="player-title" class="episode-title">
-            </div>
-          </div>
-        </div>
     </div>
-  </div>
-  <script src="assets/scripts/util.js"></script>
-</body>
-
+    <script src="assets/scripts/util.js"></script>
+  </body>
 </html>

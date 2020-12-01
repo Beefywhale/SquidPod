@@ -1,6 +1,7 @@
 # TODO List
 
 - [ ] add button to remove podcast completely, along with confirmation
-- [ ] add audio player
+- [x] add audio player
+- [ ] Add audio seeking, and queue
 - [ ] better add podcast prompt
 - [ ] sort home page
