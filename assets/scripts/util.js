@@ -322,6 +322,7 @@ function setPlayer(episode, resetQueue) {
   let playerName = document.getElementById("player-title");
   let playerImage = document.getElementById("player-image");
   let playerHidden = document.getElementById("player-title-hidden");
+  let playerAuthor = document.getElementById("player-author");
 
   if (currentEpisode) {
     currentEpisode.className = "episode";
@@ -334,6 +335,13 @@ function setPlayer(episode, resetQueue) {
   newAudioSrc.src = currentEpisode.getAttribute("mp3");
   audioPlayer.appendChild(newAudioSrc);
   audioPlayer.load();
+
+  let mediaButton = document.getElementById("media-play-button");
+  if (audioPlayer.paused) {
+    mediaButton.innerHTML = '<i class="fas fa-pause"></i>';
+  } else {
+    mediaButton.innerHTML = '<i class="fas fa-play"></i>';
+  }
 
   document.getElementById("episode-player").style = "opacity: 100;";
 
@@ -348,12 +356,12 @@ function setPlayer(episode, resetQueue) {
 
   playerName.innerHTML = currentEpisode.getAttribute("name");
   playerImage.src = currentEpisode.getAttribute("image");
+  playerAuthor.innerHTML = currentEpisode.getAttribute("author");
 }
 
 function displayFull(podcastUrl) {
   if (podcastsLoaded) {
     if (podcastUrl !== currentPodcast) {
-      console.log(podcastUrl + " : " + currentPodcast);
       podcastEpisodeQueue = [];
     }
     clearPodcasts();
@@ -478,6 +486,7 @@ function displayFull(podcastUrl) {
         episode.setAttribute("mp3", currentEpisodeURL);
         episode.setAttribute("image", image.src);
         episode.setAttribute("name", currentEpisodeTitle);
+        episode.setAttribute("author", author);
 
         episodes.appendChild(episode);
 
