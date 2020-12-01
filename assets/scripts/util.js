@@ -14,6 +14,10 @@ let notificationsLocal = [];
 let notificationCurrent;
 let currentEpisode;
 
+let currentPodcast;
+let podcastEpisodeQueue = [];
+let queue = [];
+
 const audioPlayer = document.getElementById("audio-player");
 
 const MONTHS = [
@@ -288,7 +292,17 @@ function settings() {
   }
 }
 
-function seek(forward) {}
+function seek(forward) {
+  if (forward) {
+    if (queue[queue.indexOf(currentEpisode) + 1] !== undefined) {
+      setPlayer(queue[queue.indexOf(currentEpisode) + 1], false);
+    }
+  } else {
+    if (queue[queue.indexOf(currentEpisode) - 1] !== undefined) {
+      setPlayer(queue[queue.indexOf(currentEpisode) - 1], false);
+    }
+  }
+}
 
 function playPause() {
   let mediaButton = document.getElementById("media-play-button");
@@ -301,7 +315,10 @@ function playPause() {
   }
 }
 
-function setPlayer(name, mp3, image, episode) {
+function setPlayer(episode, resetQueue) {
+  if (resetQueue) {
+    queue = podcastEpisodeQueue;
+  }
   let playerName = document.getElementById("player-title");
   let playerImage = document.getElementById("player-image");
   let playerHidden = document.getElementById("player-title-hidden");
@@ -321,18 +338,24 @@ function setPlayer(name, mp3, image, episode) {
   document.getElementById("episode-player").style = "opacity: 100;";
 
   playerHidden.onmouseover = () => {
-    playerName.style = `margin-left: -${name.length / 2}rem;`;
+    playerName.style = `margin-left: -${
+      currentEpisode.getAttribute("name").length / 2
+    }rem;`;
   };
   playerHidden.onmouseout = () => {
     playerName.style = `margin-left: 0px;`;
   };
 
-  playerName.innerHTML = name;
-  playerImage.src = image.src;
+  playerName.innerHTML = currentEpisode.getAttribute("name");
+  playerImage.src = currentEpisode.getAttribute("image");
 }
 
 function displayFull(podcastUrl) {
   if (podcastsLoaded) {
+    if (podcastUrl !== currentPodcast) {
+      console.log(podcastUrl + " : " + currentPodcast);
+      podcastEpisodeQueue = [];
+    }
     clearPodcasts();
     document.getElementById("no-found").style.display = "none";
     getXML(podcastUrl, true).then((podcastData) => {
@@ -450,9 +473,12 @@ function displayFull(podcastUrl) {
         let episode = document.createElement("div");
         episode.className = "episode";
         episode.onclick = () => {
-          setPlayer(currentEpisodeTitle, currentEpisodeURL, image, episode);
+          setPlayer(episode, true);
         };
         episode.setAttribute("mp3", currentEpisodeURL);
+        episode.setAttribute("image", image.src);
+        episode.setAttribute("name", currentEpisodeTitle);
+
         episodes.appendChild(episode);
 
         let episodeFirst = document.createElement("div");
@@ -482,7 +508,9 @@ function displayFull(podcastUrl) {
         episodeTime.className = "episode-time";
         episodeTime.innerHTML = currentEpisodeTime;
         episodeSecond.appendChild(episodeTime);
+        podcastEpisodeQueue.push(episode);
       });
+      currentPodcast = podcastUrl;
 
       if (podcasts.childNodes.length > 3) {
         document.getElementById("loader").style.display = "none";
