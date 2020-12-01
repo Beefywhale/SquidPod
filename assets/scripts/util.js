@@ -84,6 +84,7 @@ function addPodcast(link) {
     data.podcasts[link] = {
       link: link,
       favorite: false,
+      episodeData: {},
     };
     writeFileSync(podcastPath, JSON.stringify(data, null, 4));
     notify("Added new Podcast! " + link);
@@ -292,7 +293,13 @@ function settings() {
   }
 }
 
-function seek(forward) {
+function seek(e) {
+  var percent = e.offsetX / this.offsetWidth;
+  audioPlayer.currentTime = percent * audioPlayer.duration;
+  e.target.value = Math.floor(percent / 1000);
+}
+
+function skip(forward) {
   if (forward) {
     if (queue[queue.indexOf(currentEpisode) + 1] !== undefined) {
       setPlayer(queue[queue.indexOf(currentEpisode) + 1], false);
@@ -312,6 +319,50 @@ function playPause() {
   } else {
     audioPlayer.pause();
     mediaButton.innerHTML = '<i class="fas fa-play"></i>';
+  }
+}
+
+function progressUpdate() {
+  let progress = document.getElementById("seek");
+
+  if (
+    data.podcasts[currentPodcast].hasOwnProperty(
+      currentEpisode.getAttribute("name")
+    )
+  ) {
+    data.podcasts[currentPodcast][
+      currentEpisode.getAttribute("name")
+    ].currentTime = audioPlayer.currentTime;
+    data.podcasts[currentPodcast][
+      currentEpisode.getAttribute("name")
+    ].duration = audioPlayer.duration;
+    writeFileSync(podcastPath, JSON.stringify(data, null, 4));
+  } else {
+    data.podcasts[currentPodcast][currentEpisode.getAttribute("name")] = {};
+    data.podcasts[currentPodcast][
+      currentEpisode.getAttribute("name")
+    ].currentTime = audioPlayer.currentTime;
+    data.podcasts[currentPodcast][
+      currentEpisode.getAttribute("name")
+    ].duration = audioPlayer.duration;
+    writeFileSync(podcastPath, JSON.stringify(data, null, 4));
+  }
+
+  currentEpisode.getElementsByClassName("seek2")[0].value = Math.floor(
+    (100 / audioPlayer.duration) * audioPlayer.currentTime
+  );
+
+  let percentage = Math.floor(
+    (1000 / audioPlayer.duration) * audioPlayer.currentTime
+  );
+
+  if (percentage) {
+    progress.value = percentage;
+  }
+
+  if (audioPlayer.duration == audioPlayer.currentTime) {
+    //auto play next
+    setPlayer(queue[queue.indexOf(currentEpisode) + 1], false);
   }
 }
 
@@ -335,6 +386,29 @@ function setPlayer(episode, resetQueue) {
   newAudioSrc.src = currentEpisode.getAttribute("mp3");
   audioPlayer.appendChild(newAudioSrc);
   audioPlayer.load();
+
+  if (
+    data.podcasts[currentPodcast].hasOwnProperty(
+      currentEpisode.getAttribute("name")
+    )
+  ) {
+    audioPlayer.currentTime =
+      data.podcasts[currentPodcast][
+        currentEpisode.getAttribute("name")
+      ].currentTime;
+  }
+
+  audioPlayer.onloadeddata = () => {
+    currentEpisode
+      .getElementsByClassName("seek2")[0]
+      .classList.remove("hidden");
+
+    let progress = document.getElementById("seek");
+    progress.value = 0;
+    progress.addEventListener("click", seek);
+    progress.value = parseFloat(audioPlayer.currentTime / audioPlayer.duration);
+  };
+  audioPlayer.addEventListener("timeupdate", progressUpdate, false);
 
   let mediaButton = document.getElementById("media-play-button");
   if (audioPlayer.paused) {
@@ -369,6 +443,7 @@ function displayFull(podcastUrl) {
     getXML(podcastUrl, true).then((podcastData) => {
       let podcasts = document.getElementById("podcasts");
       podcasts.className = "podcasts details";
+      currentPodcast = podcastUrl;
 
       let title = podcastData.getElementsByTagName("title")[0].textContent;
       let author =
@@ -504,6 +579,22 @@ function displayFull(podcastUrl) {
         episodeSummary.innerHTML = currentEpisodeDesc;
         episodeFirst.appendChild(episodeSummary);
 
+        let episodeTimer = document.createElement("progress");
+        episodeTimer.setAttribute("min", 0);
+        episodeTimer.setAttribute("max", 100);
+        episodeTimer.value = 0;
+        episodeTimer.className = "seek2 hidden";
+
+        if (data.podcasts[currentPodcast].hasOwnProperty(currentEpisodeTitle)) {
+          episodeTimer.className = "seek2";
+          episodeTimer.value = Math.floor(
+            (100 /
+              data.podcasts[currentPodcast][currentEpisodeTitle].duration) *
+              data.podcasts[currentPodcast][currentEpisodeTitle].currentTime
+          );
+        }
+        episode.appendChild(episodeTimer);
+
         let episodeSecond = document.createElement("div");
         episodeSecond.className = "episode-second";
         episode.appendChild(episodeSecond);
@@ -519,8 +610,6 @@ function displayFull(podcastUrl) {
         episodeSecond.appendChild(episodeTime);
         podcastEpisodeQueue.push(episode);
       });
-      currentPodcast = podcastUrl;
-
       if (podcasts.childNodes.length > 3) {
         document.getElementById("loader").style.display = "none";
       }

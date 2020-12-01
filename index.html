@@ -80,7 +80,7 @@
             <div
               id="media-backward-button"
               class="media-play"
-              onclick="seek(false);"
+              onclick="skip(false);"
             >
               <i class="fas fa-fast-backward"></i>
             </div>
@@ -95,9 +95,19 @@
             <div
               id="media-forward-button"
               class="media-play"
-              onclick="seek(true);"
+              onclick="skip(true);"
             >
               <i class="fas fa-fast-forward"></i>
+            </div>
+            <div class="seeker">
+              <span id="seek-holder">
+                <progress
+                  id="seek"
+                  class="seek"
+                  value="0"
+                  max="1000"
+                ></progress>
+              </span>
             </div>
           </div>
         </div>

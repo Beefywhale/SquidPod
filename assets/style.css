@@ -588,7 +588,7 @@ body {
 }
 
 .episode-title-holder {
-  width: 300px;
+  width: 200px;
   overflow: hidden;
 }
 
@@ -611,7 +611,6 @@ body {
 .media-controls {
   display: flex;
   width: 100%;
-  margin-left: 100px;
   justify-items: center;
   align-items: center;
 }
@@ -633,6 +632,53 @@ body {
 .media-play:hover {
   color: var(--accent-color1-variant);
   background-color: white;
+}
+
+.seeker {
+  width: 100%;
+  padding: 12px;
+}
+
+.seek {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 90%;
+  height: 34px;
+  box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.seek::-webkit-progress-bar {
+  background-color: var(--accent-color3);
+  border-radius: 4px;
+}
+
+.seek::-webkit-progress-value {
+  background-color: var(--accent-color1);
+  transition: all 1s ease;
+  border-radius: 8px;
+}
+
+.seek2.hidden {
+  display: none;
+}
+.seek2 {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 40%;
+  height: 18px;
+  padding: 2px;
+  box-shadow: 4px 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.seek2::-webkit-progress-bar {
+  background-color: var(--accent-color3);
+  border-radius: 4px;
+}
+
+.seek2::-webkit-progress-value {
+  background-color: var(--accent-color1);
+  transition: all 1s ease;
+  border-radius: 8px;
 }
 
 @keyframes fadeout {
