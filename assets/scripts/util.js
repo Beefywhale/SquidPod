@@ -13,10 +13,10 @@ let podcastsLoaded = false;
 let notificationsLocal = [];
 let notificationCurrent;
 let currentEpisode;
-
 let currentPodcast;
 let podcastEpisodeQueue = [];
 let queue = [];
+let audioLoaded;
 
 const audioPlayer = document.getElementById("audio-player");
 
@@ -324,6 +324,7 @@ function playPause() {
 
 function progressUpdate() {
   let progress = document.getElementById("seek");
+  let seekTime = document.getElementById("seek-time");
 
   if (
     data.podcasts[currentPodcast].hasOwnProperty(
@@ -347,11 +348,6 @@ function progressUpdate() {
     ].duration = audioPlayer.duration;
     writeFileSync(podcastPath, JSON.stringify(data, null, 4));
   }
-
-  currentEpisode.getElementsByClassName("seek2")[0].value = Math.floor(
-    (100 / audioPlayer.duration) * audioPlayer.currentTime
-  );
-
   let percentage = Math.floor(
     (1000 / audioPlayer.duration) * audioPlayer.currentTime
   );
@@ -364,12 +360,24 @@ function progressUpdate() {
     //auto play next
     setPlayer(queue[queue.indexOf(currentEpisode) + 1], false);
   }
+
+  if (audioLoaded) {
+    currentEpisode.getElementsByClassName("seek2")[0].value = Math.floor(
+      (100 / audioPlayer.duration) * audioPlayer.currentTime
+    );
+
+    seekTime.innerHTML =
+      secondsToHMS(audioPlayer.currentTime) +
+      "/" +
+      secondsToHMS(audioPlayer.duration);
+  }
 }
 
 function setPlayer(episode, resetQueue) {
   if (resetQueue) {
     queue = podcastEpisodeQueue;
   }
+  audioLoaded = false;
   let playerName = document.getElementById("player-title");
   let playerImage = document.getElementById("player-image");
   let playerHidden = document.getElementById("player-title-hidden");
@@ -399,6 +407,7 @@ function setPlayer(episode, resetQueue) {
   }
 
   audioPlayer.onloadeddata = () => {
+    audioLoaded = true;
     currentEpisode
       .getElementsByClassName("seek2")[0]
       .classList.remove("hidden");

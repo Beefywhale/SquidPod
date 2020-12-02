@@ -681,6 +681,11 @@ body {
   border-radius: 8px;
 }
 
+#seek-time {
+  color: white;
+  font-family: "Oswald", sans-serif;
+}
+
 @keyframes fadeout {
   99% {
     opacity: 0;
