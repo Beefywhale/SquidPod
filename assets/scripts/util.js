@@ -519,11 +519,13 @@ function displayFull(podcastUrl) {
           .textContent;
         let currentEpisodeDesc;
         if (ep.getElementsByTagName("itunes:summary")[0] !== undefined) {
-          currentEpisodeDesc = ep.getElementsByTagName("itunes:summary")[0]
-            .textContent;
+          currentEpisodeDesc = ep
+            .getElementsByTagName("itunes:summary")[0]
+            .textContent.replace(/<.+?>/g, "");
         } else if (ep.getElementsByTagName("description")[0] !== undefined) {
-          currentEpisodeDesc = ep.getElementsByTagName("description")[0]
-            .textContent;
+          currentEpisodeDesc = ep
+            .getElementsByTagName("description")[0]
+            .textContent.replace(/<.+?>/g, "");
         } else {
           currentEpisodeDesc = "?";
         }
