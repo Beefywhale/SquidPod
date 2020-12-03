@@ -326,28 +326,6 @@ function progressUpdate() {
   let progress = document.getElementById("seek");
   let seekTime = document.getElementById("seek-time");
 
-  if (
-    data.podcasts[currentPodcast].hasOwnProperty(
-      currentEpisode.getAttribute("name")
-    )
-  ) {
-    data.podcasts[currentPodcast][
-      currentEpisode.getAttribute("name")
-    ].currentTime = audioPlayer.currentTime;
-    data.podcasts[currentPodcast][
-      currentEpisode.getAttribute("name")
-    ].duration = audioPlayer.duration;
-    writeFileSync(podcastPath, JSON.stringify(data, null, 4));
-  } else {
-    data.podcasts[currentPodcast][currentEpisode.getAttribute("name")] = {};
-    data.podcasts[currentPodcast][
-      currentEpisode.getAttribute("name")
-    ].currentTime = audioPlayer.currentTime;
-    data.podcasts[currentPodcast][
-      currentEpisode.getAttribute("name")
-    ].duration = audioPlayer.duration;
-    writeFileSync(podcastPath, JSON.stringify(data, null, 4));
-  }
   let percentage = Math.floor(
     (1000 / audioPlayer.duration) * audioPlayer.currentTime
   );
@@ -362,6 +340,29 @@ function progressUpdate() {
   }
 
   if (audioLoaded) {
+    if (
+      data.podcasts[currentPodcast].hasOwnProperty(
+        currentEpisode.getAttribute("name")
+      )
+    ) {
+      data.podcasts[currentPodcast][
+        currentEpisode.getAttribute("name")
+      ].currentTime = audioPlayer.currentTime;
+      data.podcasts[currentPodcast][
+        currentEpisode.getAttribute("name")
+      ].duration = audioPlayer.duration;
+      writeFileSync(podcastPath, JSON.stringify(data, null, 4));
+    } else {
+      data.podcasts[currentPodcast][currentEpisode.getAttribute("name")] = {};
+      data.podcasts[currentPodcast][
+        currentEpisode.getAttribute("name")
+      ].currentTime = audioPlayer.currentTime;
+      data.podcasts[currentPodcast][
+        currentEpisode.getAttribute("name")
+      ].duration = audioPlayer.duration;
+      writeFileSync(podcastPath, JSON.stringify(data, null, 4));
+    }
+
     currentEpisode.getElementsByClassName("seek2")[0].value = Math.floor(
       (100 / audioPlayer.duration) * audioPlayer.currentTime
     );
