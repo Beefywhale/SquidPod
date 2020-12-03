@@ -24,9 +24,9 @@ SquidPod is the last podcast manager you will ever need, [download](https://gith
 ![Screenshot2](screenshots/screenshot2.png)
 ![Screenshot3](screenshots/screenshot3.png)
 
-## Download & Install
+# Download & Install
 
-# Linux
+## Linux
 
 **Ubuntu**:
 
